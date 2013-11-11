@@ -106,33 +106,7 @@ class TwitterStrategy extends OpauthStrategy {
 			$results =  $this->_request('POST', $this->strategy['access_token_url'], $params);
 
 			if ($results !== false && !empty($results['oauth_token']) && !empty($results['oauth_token_secret'])) {
-				$credentials = $this->_verify_credentials($results['oauth_token'], $results['oauth_token_secret']);
-				
-				if (!empty($credentials['id'])) {
-					
-					$this->auth = array(
-						'uid' => $credentials['id'],
-						'info' => array(
-							'name' => $credentials['name'],
-							'nickname' => $credentials['screen_name'],
-							'urls' => array(
-								'twitter' => str_replace('{screen_name}', $credentials['screen_name'], $this->strategy['twitter_profile_url'])
-							)
-						),
-						'credentials' => array(
-							'token' => $results['oauth_token'],
-							'secret' => $results['oauth_token_secret']
-						),
-						'raw' => $credentials
-					);
-					
-					$this->mapProfile($credentials, 'location', 'info.location');
-					$this->mapProfile($credentials, 'description', 'info.description');
-					$this->mapProfile($credentials, 'profile_image_url', 'info.image');
-					$this->mapProfile($credentials, 'url', 'info.urls.website');
-					
-					$this->callback();
-				}
+                $this->processToken($results['oauth_token'], $results['oauth_token_secret']);
 			}
 		} else {
 			$error = array(
@@ -146,6 +120,36 @@ class TwitterStrategy extends OpauthStrategy {
 		
 				
 	}
+
+    public function processToken($token, $secret) {
+        $credentials = $this->_verify_credentials($token, $secret);
+
+        if (!empty($credentials['id'])) {
+
+            $this->auth = array(
+                'uid' => $credentials['id'],
+                'info' => array(
+                    'name' => $credentials['name'],
+                    'nickname' => $credentials['screen_name'],
+                    'urls' => array(
+                        'twitter' => str_replace('{screen_name}', $credentials['screen_name'], $this->strategy['twitter_profile_url'])
+                    )
+                ),
+                'credentials' => array(
+                    'token' => $results['oauth_token'],
+                    'secret' => $results['oauth_token_secret']
+                ),
+                'raw' => $credentials
+            );
+
+            $this->mapProfile($credentials, 'location', 'info.location');
+            $this->mapProfile($credentials, 'description', 'info.description');
+            $this->mapProfile($credentials, 'profile_image_url', 'info.image');
+            $this->mapProfile($credentials, 'url', 'info.urls.website');
+
+            $this->callback();
+        }
+    }
 
 	private function _authorize($oauth_token) {
 		$params = array(
