@@ -136,8 +136,8 @@ class TwitterStrategy extends OpauthStrategy {
                     )
                 ),
                 'credentials' => array(
-                    'token' => $results['oauth_token'],
-                    'secret' => $results['oauth_token_secret']
+                    'token' => $token,
+                    'secret' => $secret
                 ),
                 'raw' => $credentials
             );
