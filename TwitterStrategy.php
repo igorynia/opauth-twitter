@@ -93,12 +93,8 @@ class TwitterStrategy extends OpauthStrategy {
 			session_start();
 		}
 		$session = $_SESSION['_opauth_twitter'];
-		unset($_SESSION['_opauth_twitter']);
 
 		if (!empty($_REQUEST['oauth_token']) && $_REQUEST['oauth_token'] == $session['oauth_token']) {
-			$this->tmhOAuth->config['user_token'] = $session['oauth_token'];
-			$this->tmhOAuth->config['user_secret'] = $session['oauth_token_secret'];
-			
 			$params = array(
 				'oauth_verifier' => $_REQUEST['oauth_verifier']
 			);
@@ -117,8 +113,6 @@ class TwitterStrategy extends OpauthStrategy {
 
 			$this->errorCallback($error);
 		}
-		
-				
 	}
 
     public function processToken($token, $secret) {
@@ -189,6 +183,14 @@ class TwitterStrategy extends OpauthStrategy {
 	 * @param string $multipart whether this request contains multipart data. Default false
 	 */	
 	private function _request($method, $url, $params = array(), $useauth = true, $multipart = false) {
+        if (isset($_SESSION['_opauth_twitter'])) {
+            $session = $_SESSION['_opauth_twitter'];
+            unset($_SESSION['_opauth_twitter']);
+
+            $this->tmhOAuth->config['user_token'] = $session['oauth_token'];
+            $this->tmhOAuth->config['user_secret'] = $session['oauth_token_secret'];
+        }
+
 		$code = $this->tmhOAuth->request($method, $url, $params, $useauth, $multipart);
 
 		if ($code == 200) {
